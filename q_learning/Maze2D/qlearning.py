@@ -6,9 +6,8 @@ from tqdm import tqdm
 
 class Q_learning():
 
-    def __init__(self,env, episode= 200, gamma= 0.9, alpha= 0.1, epsilon=0.9):
+    def __init__(self,episode= 200, gamma= 0.9, alpha= 0.1, epsilon=0.9):
         
-        self.env = env
         self.episode = episode
         self.alpha = alpha
         self.epsilon = epsilon
@@ -47,26 +46,46 @@ class Q_learning():
 
         self.qtable.loc[s][action] = q_predict + self.alpha * (q_target - q_predict)
 
+    def read_q_table(self, path="./q_table.xlsx"):
+        q_table = pd.read_excel(path,index_col=0)
+        self.qtable = q_table
 
-    def train(self):
+    def train(self, env):
 
         progress_bar = tqdm(range(self.episode))
         for _ in progress_bar:
 
             while True:
-                s = self.env.get_current_state()
+                s = env.get_current_state()
                 action = self.__choose_action(state= s)
-                reward, done, steps = self.env.step(action= action)
+                reward, done, steps = env.step(action= action)
                 progress_bar.set_description(f"steps: {steps}")
-                s_ = self.env.get_current_state()
+                s_ = env.get_current_state()
                 self.__update_qtable(s= s, action= action, reward= reward, s_= s_, done= done)
 
                 if done:
-                    self.env.reset()
+                    env.reset()
                     break
-        self.env.destroy_render()
+        self.qtable.to_excel("./q_table.xlsx")
+        env.destroy_render()
 
+    def test(self, env):
+        while True:
+            s = env.get_current_state()
+            action = self.qtable.loc[s].argmax()
+            reward, done, steps = env.step(action= action)
+
+            if done:
+                env.reset()
+                env.destroy_render()
+                break
+        
 if __name__ == "__main__":
     
-    qlearning = Q_learning(env= Maze2D(), episode=300)
-    qlearning.train()
+    qlearning = Q_learning(episode=1000)
+    # training
+    # qlearning.train(env= Maze2D())
+
+    # testing
+    qlearning.read_q_table()
+    qlearning.test(env= Maze2D(speed= 5))

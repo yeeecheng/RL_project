@@ -15,7 +15,7 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
 class Maze2D():
-    def __init__(self):
+    def __init__(self, speed = SPEED):
         
         pygame.init()
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -32,7 +32,7 @@ class Maze2D():
         self.render_goal.fill(GREEN)
 
         self.fps = pygame.time.Clock()
-
+        self.speed = speed
         self.reset()
 
     def __create_bg(self):
@@ -44,7 +44,7 @@ class Maze2D():
         
         self.player_pos = Pos(0,0)
         self.goal_pos = Pos(450, 450)
-        self.obstacle_pos = [Pos(50, 50), Pos(100, 100), Pos(150, 150), Pos(300, 300), Pos(350, 400), Pos(400, 50)]
+        self.obstacle_pos = [Pos(50, 50), Pos(100, 100), Pos(100, 150), Pos(50, 200),Pos(0, 250), Pos(150, 150), Pos(300, 300), Pos(200, 450),Pos(250, 200),Pos(350, 350),Pos(350, 400),Pos(400, 450), Pos(400, 50)]
         self.frame_steps = 0
         self.done = False
         self.__update_UI()
@@ -54,7 +54,7 @@ class Maze2D():
         
         self.frame_steps += 1
         reward = 0 
-        self.fps.tick(SPEED)
+        self.fps.tick(self.speed)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
